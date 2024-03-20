@@ -1,6 +1,8 @@
 # YT-Radio - a custom [waybar](https://github.com/Alexays/Waybar/wiki) module
 
-YT-Radio is a custom waybar module written in [Go](https://go.dev/). A list of YouTube links (your playlist) can be set in a JSON based configuration file.
+YT-Radio is a custom waybar module written in [Go](https://go.dev/). It's like a YouTube radio. You can have music playing in the background as you work. It's literally as easy as clicking  a button.
+
+A list of YouTube links (your playlist) can be set in a JSON based configuration file.
 
 ## Screenshots
 
