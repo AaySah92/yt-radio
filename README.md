@@ -4,7 +4,7 @@ YT-Radio is a custom waybar module written in Go. The playlist (a list of YouTub
 
 ## Screenshots
 
-![ezgif-7-aae398a7c8](https://github.com/AaySah92/temp/assets/26904734/b2265f1e-2170-4534-a003-032d114df221)
+![ezgif-7-aae398a7c8](https://github.com/AaySah92/yt-radio/assets/26904734/be737789-e3c6-4dfb-909e-8619ae1392a1)
 
 #### Demo on YouTube:
 
