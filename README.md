@@ -1,10 +1,10 @@
 # YT-Radio - a custom [waybar](https://github.com/Alexays/Waybar/wiki) module
 
-YT-Radio is a custom waybar module written in Go. The playlist (a list of YouTube links) can be in a JSON based configuration file.
+YT-Radio is a custom waybar module written in [Go](https://go.dev/). A list of YouTube links (your playlist) can be set in a JSON based configuration file.
 
 ## Screenshots
 
-![ezgif-7-aae398a7c8](https://github.com/AaySah92/yt-radio/assets/26904734/be737789-e3c6-4dfb-909e-8619ae1392a1)
+![ezgif-7-aae398a7c8](https://github.com/AaySah92/yt-radio/assets/26904734/40d55d63-2bcf-415c-9158-fd971e07ef48)
 
 #### Demo on YouTube:
 
@@ -16,9 +16,11 @@ YT-Radio is a custom waybar module written in Go. The playlist (a list of YouTub
 -  Scrolling up on the YT button goes to the next track.
 - Scrolling down on the YT button goes to the previous track.
 - The title of the current track is shown next to the YT button.
-## Requirements
+
+## Dependencies
 - [mpv](https://mpv.io/installation/) - a free (as in freedom) media player for the command line.
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) - a feature-rich command-line audio/video downloader.
+
 ## Installation
 The installtion involves 3 steps:
 - Download the binary
@@ -134,3 +136,8 @@ $XDG_CONFIG_HOME/yt-radio/yt <command>
 | Previous	| Play previous	| NA		|
 | Status	| Get status	| {"text": "$text", "class": "$class"}	|
 
+## Build
+You can edit the file `yt.go` and complie it using Go. This will generate a binary `yt` which can be used by waybar.
+```bash
+go build yt.go
+```
