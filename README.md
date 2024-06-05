@@ -2,7 +2,10 @@
 
 YT-Radio is a custom waybar module written in [Go](https://go.dev/). It's like a YouTube radio. You can have music playing in the background as you work. It's literally as easy as clicking  a button.
 
-A list of YouTube links (your playlist) can be set in a JSON based configuration file.
+## Announcement - Version 2 is here!!
+
+Add the link of a public playlist or your own "unlisted" playlist from **YouTube** to a JSON-based configuration file and you're good to go.
+No need to list YouTube links in the config file anymore.
 
 ## Screenshots
 
@@ -14,8 +17,9 @@ A list of YouTube links (your playlist) can be set in a JSON based configuration
 
 ## Features
 
+- **Supports YouTube playlists** as long as they are public or "unlisted"
 - Clicking the YT button starts / stops the player.
--  Scrolling up on the YT button goes to the next track.
+- Scrolling up on the YT button goes to the next track.
 - Scrolling down on the YT button goes to the previous track.
 - The title of the current track is shown next to the YT button.
 
@@ -117,10 +121,7 @@ mpv --no-terminal --no-video --idle=yes --input-ipc-server=/tmp/mpvsocket
 - Sample: 
 ```json
 {
-	"playlist": [
-		"https://www.youtube.com/watch?v=4xDzrJKXOOY",
-		"https://www.youtube.com/watch?v=jfKfPfyJRdk"
-	]
+	"playlist": "https://www.youtube.com/playlist?list=PLNE8i1MIgpysRkOTrfqy1Isn2vShcX4gH"
 }
 
 ```
