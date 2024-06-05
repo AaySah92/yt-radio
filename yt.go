@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log"
 	"net"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 )
 
@@ -18,11 +20,11 @@ func check(err error) {
 }
 
 type Config struct {
-	Playlist	[]string	`json:"playlist"`
+	Playlist	string	`json:"playlist"`
 }
 
 type Cache struct {
-	Playing		int		`json:"playing"`
+	Playing		int	`json:"playing"`
 }
 
 func readFromFile[T Config | Cache] (objectPath string, object *T) {
@@ -61,37 +63,40 @@ func (ipcConnection *IpcConnection) openConnection() {
 }
 
 func (ipcConnection *IpcConnection) closeConnection() {
-	ipcConnection.Connection.Close()
+	err := ipcConnection.Connection.Close()
+	check(err)
 }
 
-func (ipcConnection *IpcConnection) sendCommand(options []string) {
-	commandJson, err := json.Marshal(map[string][]string{"command": options})
+func (ipcConnection *IpcConnection) runCommand(options []any) interface{} {
+	commandJson, err := json.Marshal(map[string][]any{"command": options})
 	check(err)
 
 	_, err = ipcConnection.Connection.Write([]byte(string(commandJson) + "\n"))
 	check(err)
-}
 
-func (ipcConnection *IpcConnection) getCommand(options []string) interface{} {
-	ipcConnection.sendCommand(options)
 	response := make([]byte, 1024)
 	n, err := ipcConnection.Connection.Read(response)
 	check(err)
 
+	response = []byte(strings.Split(string(response[:n]), "\n")[0])
+
 	var responseJson map[string]interface{}
-	err = json.Unmarshal(response[:n], &responseJson)
+	err = json.Unmarshal(response, &responseJson)
 	check(err)
 
 	if responseJson["error"].(string) != "success" {
-		panic(responseJson["error"].(string))
+		log.Fatal(responseJson["error"].(string))
 	}
 
 	return responseJson["data"]
 }
 
-func play (currentPlaying int) {
-	ipcConnection.sendCommand([]string{"loadfile", config.Playlist[currentPlaying]})
-	cache.Playing = currentPlaying
+func writeToCache () {
+	playing := int(ipcConnection.runCommand([]any{"get_property", "playlist-pos"}).(float64))
+	if playing == -1 {
+		playing = 0
+	}
+	cache.Playing = playing
 	writeToFile(cachePath, &cache)
 }
 
@@ -118,48 +123,39 @@ func main() {
 	readFromFile(configPath, &config)
 	readFromFile(cachePath, &cache)
 
-	if len(config.Playlist) == 0 {
-		panic("No tracks in playlist")
-	}
-
-	if len(os.Args) == 0 {
+	if len(os.Args) == 1 {
 		panic("No arguments passed")
 	}
 	arg := os.Args[1]
 
-	playingFlag := !ipcConnection.getCommand([]string{"get_property", "idle-active"}).(bool)
+	playingFlag := !ipcConnection.runCommand([]any{"get_property", "idle-active"}).(bool)
 	currentPlaying := cache.Playing
 
 	switch arg {
 	case "toggle":
 		if playingFlag {
-			ipcConnection.sendCommand([]string{"stop"})
+			ipcConnection.runCommand([]any{"stop"})
 		} else {
-			play(currentPlaying)
+			ipcConnection.runCommand([]any{"loadfile", config.Playlist, "replace", -1, "playlist-start=" + strconv.Itoa(currentPlaying)})
+			writeToCache()
 		}
 	case "next":
 		if playingFlag {
-			currentPlaying++
-			if currentPlaying >= len(config.Playlist) {
-				currentPlaying = 0
-			}
-			play(currentPlaying)
+			ipcConnection.runCommand([]any{"playlist-next"})
+			writeToCache()
 		}
 	case "previous":
 		if playingFlag {
-			currentPlaying--
-			if currentPlaying < 0 {
-				currentPlaying = len(config.Playlist) - 1
-			}
-			play(currentPlaying)
+			ipcConnection.runCommand([]any{"playlist-prev"})
+			writeToCache()
 		}
 	case "status":
 		text 	:= ""
 		class	:= ""
 
 		if playingFlag {
-			text = ipcConnection.getCommand([]string{"get_property", "media-title"}).(string)
-			if strings.HasPrefix(text, "watch") {
+			text = ipcConnection.runCommand([]any{"get_property", "media-title"}).(string)
+			if strings.HasPrefix(text, "playlist") {
 				text = "Connecting"
 			} else if len(text) > 30 {
 				text = text[:30]
